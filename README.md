@@ -21,16 +21,19 @@ quickstart
 ----------
 
 This project is meant to be developed from within a virtualbox environment.  
-Please InstallVirtualbox and Vagrant for your OS.  
+Please Install VirtualBox (and VirtualBox Extension Pack) and Vagrant for your OS.  
 
 Navigate to the root of this project and run:  
-```vagrant up```
+```shell
+vagrant plugin install vagrant-vbguest
+vagrant up
+```
 
 This will create a virtual environment, install dependencies, provide you with  
 enough data to get coding right away, and fire up a runserver. Point your browser  
-to ```localhost:8000``` and start editing files.  
+to `localhost:8000` and start editing files.  
   
-When you're finished working on the site, just run ```vagrant halt``` to power down  
+When you're finished working on the site, just run `vagrant halt` to power down  
 the VM. The next time you start it up, it will purge any changes you made to the provided  
 data.  
 
@@ -49,29 +52,40 @@ FAQ
 
 Having trouble? Here's some common problems and solutions.  
 
+The password for the vagrant account is 'vagrant'.
+
 ### development server
-###### not running after ```vagrant up```
+###### not running after `vagrant up`
 at times, for one reason or another, the django runserver doesn't start on boot.  
-To start this manually, enter from the project room:
+To start this manually, enter from the project root:
 ```
 vagrant ssh
-sudo supervisorctl restart vegphilly-runserver
+
+# check if supervisord is running
+sudo supervisorctl status
+
+# if it isn't:
+sudo service supervisor restart
+
+# restart the dev daemon
+sudo supervisorctl restart vegdev
 ```
-The password for the vagrant account is 'vagrant'.
 
 ###### viewing the log in realtime
 normally a django runserver runs in your terminal for debugging. If you'd like to view
 the terminal to watch for output, execute:
 ```
 vagrant ssh
-cd /var/log/vegphilly/
-tail -f access.log
+tail -f /tmp/dev-access-error.log
 ```
 ###### stopping the server to free port 8000 for other things
-just run
+`supervisord` usually fails to kill the dev server it starts. After telling `supervisord`
+to stop `vegdev`, make sure to run the `killdev.py` script to clean up any zombie processes.
 ```
 vagrant ssh
-sudo supervisorctl stop vegphilly-runserver
+
+sudo supervisorctl stop vegdev
+/usr/local/vegphilly/killdev.py
 ```
 
 
